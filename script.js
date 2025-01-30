@@ -78,8 +78,13 @@ const displayMovements = function (movements) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-
 displayMovements(account1.movements);
+
+const calcBalance = movements => {
+  const balance = movements.reduce((acc, mov) => acc + mov, 0);
+  labelBalance.textContent = `${balance} EUR`;
+};
+calcBalance(account1.movements);
 
 const createUsernames = function (accounts) {
   accounts.forEach(acc => {
@@ -92,7 +97,6 @@ const createUsernames = function (accounts) {
 };
 createUsernames(accounts); // stw
 
-console.table(accounts);
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
