@@ -71,20 +71,37 @@ const displayMovements = function (movements) {
             <div class="movements__type movements__type--${type}">
               ${i + 1} ${type}
             </div>
-            <div class="movements__value">${mov}</div>
+            <div class="movements__value">${mov}€</div>
           </div>
         `;
 
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-displayMovements(account1.movements);
 
-const calcBalance = movements => {
+const displayBalance = movements => {
   const balance = movements.reduce((acc, mov) => acc + mov, 0);
-  labelBalance.textContent = `${balance} EUR`;
+  labelBalance.textContent = `${balance}€`;
 };
-calcBalance(account1.movements);
+
+const displaySummary = account => {
+  const incomes = account.movements
+    .filter(mov => mov > 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumIn.textContent = `${incomes}€`;
+
+  const outcomes = account.movements
+    .filter(mov => mov < 0)
+    .reduce((acc, mov) => acc + mov, 0);
+  labelSumOut.textContent = `${Math.abs(outcomes)}€`;
+
+  const interest = account.movements
+    .filter(mov => mov > 0)
+    .map(deposit => (deposit * account.interestRate) / 100)
+    .filter(int => int > 1)
+    .reduce((acc, int) => acc + int, 0);
+  labelSumInterest.textContent = `${interest}€`;
+};
 
 const createUsernames = function (accounts) {
   accounts.forEach(acc => {
@@ -97,6 +114,33 @@ const createUsernames = function (accounts) {
 };
 createUsernames(accounts); // stw
 
+// Event handlers
+let currentAccount;
+
+btnLogin.addEventListener('click', function (e) {
+  // Prevent from submiting
+  e.preventDefault();
+  currentAccount = accounts.find(
+    acc => acc.username === inputLoginUsername.value
+  );
+
+  if (currentAccount?.pin === Number(inputLoginPin.value)) {
+    // Display UI
+    labelWelcome.textContent = `Welcome back, ${
+      currentAccount.owner.split(' ')[0]
+    }`;
+    containerApp.style.opacity = '1';
+    // Clear input fields
+    inputLoginUsername.value = inputLoginPin.value = '';
+    inputLoginPin.blur();
+    // Display movements
+    displayMovements(currentAccount.movements);
+    // Display balance
+    displayBalance(currentAccount.movements);
+    // Display summary
+    displaySummary(currentAccount);
+  }
+});
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
 // LECTURES
